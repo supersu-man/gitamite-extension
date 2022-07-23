@@ -1,18 +1,18 @@
 console.log("Script loaded")
 
-if(document.URL.includes("welcome")){
+if (document.URL.includes("welcome")) {
     var ar = getSubjectsArray()
-    chrome.storage.local.set({'courses': ar}, ()=>{
+    chrome.storage.local.set({ 'courses': ar }, () => {
         console.log("Saved Courses successfully")
     })
 }
 
-if(document.URL.includes("mytimetable")){
+if (document.URL.includes("mytimetable")) {
     var [table, ar] = getTimetable()
-    setNewTimetable(table,ar)
+    setNewTimetable(table, ar)
 }
 
-function getSubjectsArray(){
+function getSubjectsArray() {
     var table = document.getElementById('ContentPlaceHolder1_GridView2')
     var dom = new DOMParser().parseFromString(table.innerHTML, "text/xml")
     var rows = dom.getElementsByTagName('tr')
@@ -26,23 +26,26 @@ function getSubjectsArray(){
     return ar
 }
 
-function getTimetable(){
+function getTimetable() {
     var table = document.getElementById('ContentPlaceHolder1_grd1')
+    while(table.innerHTML.includes('&nbsp;')){
+        table.innerHTML = table.innerHTML.replace("&nbsp;", " ")
+    }
     var dom = new DOMParser().parseFromString(table.innerHTML, "text/xml")
     var td = dom.getElementsByTagName('td')
     var ar = []
-    for(element of td){
+    for (element of td) {
         ar.push(element.textContent)
     }
     return [table, ar]
 }
 
-function setNewTimetable(table, ar){
-    storedData((result)=>{
-        for(element of result){
+function setNewTimetable(table, ar) {
+    storedData((result) => {
+        for (element of result) {
             ar.forEach(subcode => {
-                if(subcode.includes(element[0])){
-                    table.innerHTML = table.innerHTML.replace(subcode,element[1])
+                if (subcode.includes(element[0])) {
+                    table.innerHTML = table.innerHTML.replace(subcode, element[1])
                 }
             })
         }
@@ -50,9 +53,8 @@ function setNewTimetable(table, ar){
     })
 }
 
-function storedData(callback){
+function storedData(callback) {
     chrome.storage.local.get(['courses'], (result) => {
         callback(result.courses)
-      }
-    )
+    })
 }
